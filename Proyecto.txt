@@ -9,4 +9,4 @@ FormularioProgramarPago	      - 5 Insert
 FormularioPagos		      - 3 Insert - 5 Update  - 3 Delete 
 :) Utilidades					     - 2 Delete
 :) VisuaProyecto		      - 1 Insert - 1 Update  - 1 Delete
-VisuaTrabajos				 - 4 Update  - 1 Delete
+:) VisuaTrabajos				 - 4 Update  - 1 Delete
