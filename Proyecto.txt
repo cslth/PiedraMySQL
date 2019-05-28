@@ -5,8 +5,8 @@ Empleado					     - 1 Delete
 registroEmpleado	      - 19 Insert
 FormularioProgramarPago	      - 5 Insert
 -------------------------------------------------------------------------------
-AgregarTipoTrabajoEmpleado    - 1 Insert - 2 Update
+:) AgregarTipoTrabajoEmpleado    - 1 Insert - 2 Update
 FormularioPagos		      - 3 Insert - 5 Update  - 3 Delete 
 Utilidades					     - 2 Delete
-VisuaProyecto		      - 1 Insert - 1 Update  - 1 Delete
+:) VisuaProyecto		      - 1 Insert - 1 Update  - 1 Delete
 VisuaTrabajos				 - 4 Update  - 1 Delete
