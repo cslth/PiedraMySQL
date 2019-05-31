@@ -290,125 +290,86 @@ CREATE VIEW TipEmp
 AS SELECT ID AS clave, NombreTipo AS NT 
 FROM TipoEmpleado;
 
+-- Procedimientos
+
+-- FormularioProgramarPago
+DELIMITER ;;
+CREATE PROCEDURE insert_Trabajos (des varchar(255), nomb varchar(255), TE int(10),tiempo varchar(10),TTID int(10),PID int(10))
+BEGIN
+		IF (tiempo LIKE 'day') THEN
+			IF(PID > 0) THEN
+				INSERT INTO Trabajos (Descripcion,Nombre,TiempoEntrega,FechaEntrega,TipoTrabajosID, ProyectosID  ) 
+				VALUES(des,nomb,TE,adddate(CURDATE(),INTERVAL TE day),TTID,PID);
+			ELSE 
+				INSERT INTO Trabajos (Descripcion,Nombre,TiempoEntrega,FechaEntrega,TipoTrabajosID) 
+				VALUES(des,nomb,TE,adddate(CURDATE(),INTERVAL TE day),TTID);
+			END IF;
+		END IF;
+		IF (tiempo LIKE 'month') THEN
+			IF (PID > 0) THEN
+				INSERT INTO Trabajos (Descripcion,Nombre,TiempoEntrega,FechaEntrega,TipoTrabajosID, ProyectosID  ) 
+				VALUES(des,nomb,TE,adddate(CURDATE(),INTERVAL TE month),TTID,PID);
+			ELSE
+				INSERT INTO Trabajos (Descripcion,Nombre,TiempoEntrega,FechaEntrega,TipoTrabajosID) 
+				VALUES(des,nomb,TE,adddate(CURDATE(),INTERVAL TE month),TTID);
+			END IF;
+		END IF;
+        IF (tiempo LIKE 'year') THEN
+			IF(PID > 0) THEN
+				INSERT INTO Trabajos (Descripcion,Nombre,TiempoEntrega,FechaEntrega,TipoTrabajosID, ProyectosID  ) 
+				VALUES(des,nomb,TE,adddate(CURDATE(),INTERVAL TE year),TTID,PID);
+			ELSE 
+				INSERT INTO Trabajos (Descripcion,Nombre,TiempoEntrega,FechaEntrega,TipoTrabajosID) 
+				VALUES(des,nomb,TE,adddate(CURDATE(),INTERVAL TE year),TTID);
+			END IF;
+		END IF;
+END;;
+DELIMITER ;
+
+-- registroEmpleado
+DELIMITER ;;
+CREATE PROCEDURE insert_EmpleadoTipoEmpleado(num int(10))
+BEGIN 
+    INSERT INTO Empleado_TipoEmpleado VALUES ((SELECT MAX(ID) FROM Empleado), num);
+END;;
+DELIMITER ;
+
+DELIMITER ;;
+CREATE PROCEDURE insert_Empleado(nombre varchar(255), email varchar(255), calle varchar(255), colonia varchar(255), 
+								cp int(10), ciudad varchar(255), estado varchar(255), rfc varchar(255),fechaNac date,
+                                imagen varchar(255),sexo bit(1))
+BEGIN 
+    INSERT INTO Empleado(Nombre,email,Calle,Colonia,CP,Ciudad,Estado,RFC,FechaNacimiento,imagenEmpleado,Sexo) 
+    VALUES(nombre,email,calle,colonia,cp,ciudad,estado,rfc,fechaNac,imagen,sexo);
+END;;
+DELIMITER ;
+
+DELIMITER ;;
+CREATE PROCEDURE insert_Telefonos( telefono varchar(20))
+BEGIN
+	INSERT INTO Telefonos VALUES((SELECT MAX(ID) FROM Empleado),telefono);
+END;;
+DELIMITER ;
+-- FormularioPago
+DELIMITER ;;
+CREATE PROCEDURE delete_Pagos(IN idPP int(11))
+BEGIN
+	DELETE FROM Pagos WHERE ID = idPP;
+END;;
+DELIMITER ;
+
+DELIMITER ;;
+CREATE PROCEDURE update_PagosMonto(IN monto int(10), IN metodoID int(10), IN id int(10))
+BEGIN
+	UPDATE Pagos SET Monto = monto, MetodoID = metodoID WHERE ID = id;
+END;;
+DELIMITER ;
+
+
 -- Consultas
 SELECT * FROM Telefonos;
 SELECT * FROM Empleado;
 SELECT * FROM RedesSociales;
 SELECT * FROM Sesiones;
-
--- Procedimientos almacenados
-
-
-
--- Tipo de trabajo
-DELIMITER ;;
-CREATE PROCEDURE insert_TipoTrabajo(IN nombre varchar(255), IN descripcion varchar(255))
-BEGIN
-	INSERT INTO TipoTrabajos (NombreTipoTrab,DescripcionTrab) VALUES(nombre,descripcion);
-END;;
-
--- Utilidades
-CREATE PROCEDURE delete_TipoDeRedSocial(IN id int(11))
-BEGIN
-	DELETE FROM TipoDeRedSocial WHERE ID = id;
-END;; 
-
-CREATE PROCEDURE delete_TipoTrabajos(IN id int(11))
-BEGIN
-	DELETE FROM TipoTrabajos WHERE ID = id;
-END;;
-
--- VisuaTrabajos
-CREATE PROCEDURE update_Trabajos(nombre varchar(255), descripcion varchar(255),tiposTrabajosID int(11), tiempoEntrega int(10), idTrab int(11))
-BEGIN
-	UPDATE Trabajos SET Nombre = nombre ,Descripcion = descripcion ,TipoTrabajosID = tiposTrabajosID, TiempoEntrega = tiempoEntrega,
-								FechaEntrega = adddate(CURDATE(),tiempoEntrega) WHERE ID = idTrab;
-END;;
-
-CREATE PROCEDURE update_ProyID(IN idProy int(11), IN idTrab int(11))
-BEGIN
-	UPDATE Trabajos SET ProyectosID = idProy WHERE ID = idTrab;
-END;;
-
-CREATE PROCEDURE update_ProyIDNulo(IN idProy int(11), IN idTrab int(11))
-BEGIN
-	UPDATE Trabajos SET ProyectosID = null WHERE ID = idTrab;
-END;;
-
--- FormularioPago
-CREATE PROCEDURE delete_Pagos(IN idPP int(11))
-BEGIN
-	DELETE FROM Pagos WHERE ID = idPP;
-END;;
-
-CREATE PROCEDURE delete_Gasto(IN idG int(11))
-BEGIN
-	DELETE FROM Gasto WHERE ID = idG;
-END;;
-
-CREATE PROCEDURE update_NumTotalPagos(IN idPP int(11))
-BEGIN
-	UPDATE PagoProgramado SET NumTotalPagos = NumTotalPagos-1 WHERE ID = idPP;
-END;;
-
-CREATE PROCEDURE update_NumTotalPagos2(IN id int(11))
-BEGIN
-	UPDATE PagoProgramado SET NumTotalPagos = NumTotalPagos+1 WHERE ID = id;
-END;;
-
-CREATE PROCEDURE update_PagosMonto(IN monto int(10), IN metodoID int(10), IN id int(10))
-BEGIN
-	UPDATE Pagos SET Monto = monto, MetodoID = metodoID WHERE ID = id;
-END;;
-
-CREATE PROCEDURE update_Concepto(IN concepto varchar(255), IN idPP int(10))
-BEGIN
-	UPDATE Gasto SET Concepto = concepto WHERE ID = idPP;
-END;;
-
-CREATE PROCEDURE insert_Pagos(numPago tinyint(2), Monto INT(10), PagoProgramadoID INT(10), MetodoID INT(10))
-BEGIN
-	INSERT INTO Pagos (numPago, Monto, PagoProgramadoID, MetodoID, FechaPago) VALUES (numPago,Monto,PagoProgramadoID,MetodoID,CURDATE());
-END;;
-
-CREATE PROCEDURE insert_Pagos2(Monto INT(10), GastoID INT(10), MetodoID INT(10))
-BEGIN
-	INSERT INTO Pagos (numPago, Monto, GastoID, MetodoID, FechaPago) VALUES (1,Monto,GastoID,MetodoID,CURDATE());
-END;;
-
-CREATE PROCEDURE insert_Gastos(IN concepto varchar(255))
-BEGIN
-	Insert into Gasto(Concepto) Values (concepto);
-END;;
-
-
-CREATE PROCEDURE update_TipoTrabajo(IN nombre varchar(255), IN descripcion varchar(255), IN id int(11))
-BEGIN
-	UPDATE TipoTrabajos SET NombreTipoTrab = nombre.Text, DescripcionTrab = descripcion WHERE ID = id;
-END;;
-
-CREATE PROCEDURE update_Desc_TipoTrabajo(IN descripcion varchar(255), IN id int(11))
-BEGIN
-	UPDATE TipoTrabajos SET DescripcionTrab = descripcion WHERE ID = id;
-END;;
-
--- VisuaProyecto
-CREATE PROCEDURE insert_Proyectos(nombre varchar(255),descripcion varchar(255),fechaInicio date, fechaFin date, encargado varchar(255))
-BEGIN
-	INSERT INTO Proyectos(Nombre,Descripcion,FechaInicio, FechaFin, Encargado ) 
-				VALUES(nombre,descripcion,fechaInicio,fechaFin,encargado);
-END;;
-
-CREATE PROCEDURE update_Proyectos(nombre varchar(255),descripcion varchar(255),fechaInicio date, fechaFin date, encargado varchar(255), idProy int(11))
-BEGIN 
-	UPDATE Proyectos SET Nombre = nombre , Descripcion = descripcion ,FechaInicio = fechaInicio, FechaFin = fechaFin ,Encargado = encargado WHERE ID = idProy;
-END;;
-
-CREATE PROCEDURE delete_Proyectos(IN idProy int(11))
-BEGIN
-	DELETE FROM Proyectos WHERE ID = idProy;
-END;;
-
-    
-
-
+SELECT * FROM Empleado;
+SELECT *  FROM Trabajos;
