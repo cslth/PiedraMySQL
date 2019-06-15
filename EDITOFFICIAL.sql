@@ -138,11 +138,11 @@ CREATE TABLE Empleado_TipoEmpleado (EmpleadoID int(3) NOT NULL,
                                     ses_id int(11) not null,
 	                                PRIMARY KEY (EmpleadoID, TipoEmpleadoID)) ENGINE=InnoDB;
                                     
-CREATE TABLE Ingresos(IngresoID int(10) NOT NULL auto_increment,
+CREATE TABLE Ingresos(ID int(10) NOT NULL auto_increment,
 					  Concepto text NOT NULL,
                       ses_id int(11) NOT NULL,
-                      primary key (IngresoID)) ENGINE = InnoDB;
-					
+                      primary key (ID)) ENGINE = InnoDB;
+                      
 CREATE TABLE Pagos (ID int(10) NOT NULL AUTO_INCREMENT, 
 	                numPago tinyint(2) NOT NULL, 
 	                GastoID int(10), 
@@ -151,7 +151,7 @@ CREATE TABLE Pagos (ID int(10) NOT NULL AUTO_INCREMENT,
 	                MetodoID tinyint(2) NOT NULL,
                     FechaPago date not null, 
                     ses_id int(11) not null,
-                    IngresoID int(10) NOT NULL,
+                    ingresoID int(10),
 	                PRIMARY KEY (ID)) ENGINE=InnoDB;
 
 CREATE TABLE Gasto (ID int(10) NOT NULL AUTO_INCREMENT, 
@@ -175,6 +175,10 @@ CREATE TABLE Metodo (ID tinyint(2) NOT NULL AUTO_INCREMENT,
 	                 Metodo varchar(255) NOT NULL,
                      ses_id int(11) not null,
 	                 PRIMARY KEY (ID)) ENGINE=InnoDB;
+                     
+ SELECT Metodo FROM Metodo as m
+ INNER JOIN Pagos as p on(p.MetodoID = m.ID)
+ where p.ingresoID = 1;
 
 -- PONER LA SESION EN CADA UNA DE LAS TABLAS (CONSTRAINT)
 ALTER TABLE Empleado
@@ -227,7 +231,7 @@ foreign key(ses_id) references Sesiones(ses_id);
 
 ALTER TABLE Pagos
 ADD CONSTRAINT ingresos_pagos
-foreign key(IngresoID) references Ingresos(IngresoID)
+foreign key(ingresoID) references Ingresos(ID)
 ON DELETE CASCADE;
 
 ALTER TABLE Gasto
@@ -528,6 +532,23 @@ BEGIN
 END//
 DELIMITER ;
 
+-- Función para saber el saldo
+DELIMITER //
+CREATE FUNCTION saldo() RETURNS INT
+BEGIN
+    SET @pagos_gastos = 0;
+    SET @ingresos = 0;
+    
+    SELECT SUM(Monto) INTO @pagos_gastos
+    FROM Pagos WHERE ingresoID is NULL;
+    
+    SELECT SUM(Monto) INTO @ingresos
+    FROM Pagos WHERE ingresoID is not null;
+
+	RETURN (@ingresos - @pagos_gastos);
+END//
+DELIMITER ;
+
 -- Triggers
 DELIMITER ;;
 CREATE TRIGGER edadEmpleado
@@ -550,7 +571,6 @@ END;;
 DELIMITER ;
 
 
-
 -- Consultas
 SELECT * FROM Telefonos;
 SELECT * FROM Empleado;
@@ -561,4 +581,5 @@ SELECT *  FROM Trabajos;
 SELECT * FROM Empleado_Trabajos;
 SELECT * FROM Empleado_TipoEmpleado;
 SELECT * FROM Pagos;
+SELECT * FROM Ingresos;
 SELECT * FROM Proyectos;
